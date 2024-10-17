@@ -21,5 +21,5 @@
 
 * The requirements: 4GB file, 4GB of RAM and 40GB of disk.
 * In order to accelerate my manual tests, I'm running a 1GB file with 512MB of memory.
-* WordCounterScript2 seems to be the fastest implementation
-* I made use of IntelliJ AI boot 
+* WordCounterScript2 seems to be the fastest implementation.
+* I made use of IntelliJ AI boot.
