@@ -9,7 +9,7 @@
 
 ## Running 
 
-`time grep -o 'PEACE' data-file.txt | wc -l`
+`time docker run -m 512m --rm my-jbang-java21-image grep -o 'PEACE' data-file.txt | wc -l`
 
 `time docker run -m 512m --rm my-jbang-java21-image java -jar WordCounterScript1-fatjar.jar`
 
