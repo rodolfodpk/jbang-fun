@@ -26,10 +26,14 @@ class WordCounterScript1 implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        var startTime = System.nanoTime();
         System.out.println("Target file " + targetFile + " target word " + targetWord);
         var reader = new WordCounterImplScanner();
         var count = reader.countWordOnFile(targetWord, targetFile);
+        var endTime = System.nanoTime();
+        var elapsed = endTime - startTime;
         System.out.println("The word '" + targetWord + "' occurs " + count + " times.");
+        System.out.println("Elapsed time in milliseconds: " + elapsed / 1000000);
         return 0;
     }
 

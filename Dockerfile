@@ -25,7 +25,5 @@ RUN /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && jbang export fatjar
 RUN /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && jbang export fatjar WordCounterScript2.java"
 RUN /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && jbang export fatjar WordCounterScript3.java"
 
-RUN /bin/bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && ls -lh"
-
 RUN java -jar LargeFileGenerator-fatjar.jar
 

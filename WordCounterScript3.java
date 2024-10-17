@@ -30,6 +30,7 @@ class WordCounterScript3 implements Callable<Integer> {
 
     @Override
     public Integer call() throws InterruptedException {
+        var startTime = System.nanoTime();
         System.out.println("Target file " + targetFile + " target word " + targetWord);
         var vertx = Vertx.vertx();
         var reader = new WordCounterImplVertx(vertx);
@@ -44,6 +45,9 @@ class WordCounterScript3 implements Callable<Integer> {
                     latch.countDown(); // release the latch even in case of an error
                 });
         latch.await();
+        var endTime = System.nanoTime();
+        var elapsed = endTime - startTime;
+        System.out.println("Elapsed time in milliseconds: " + elapsed / 1000000);
         return 0;
     }
 
