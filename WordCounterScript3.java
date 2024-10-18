@@ -12,6 +12,8 @@ import picocli.CommandLine.Command;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Command(name = "WordCounterScript3", mixinStandardHelpOptions = true, version = "WordCounterScript3 0.1",
         description = "WordCounterScript3")
@@ -56,19 +58,22 @@ class WordCounterScript3 implements Callable<Integer> {
         private final Vertx vertx;
         private long wordCount = 0;
 
+        private Pattern pattern;
+
         public WordCounterImplVertx(Vertx vertx) {
             this.vertx = vertx;
         }
 
         public Future<Long> countWordOnFile(String targetWord, String targetFile) {
-            Promise<Long> promise = Promise.promise();
+            pattern = Pattern.compile("\\b" + targetWord + "\\b");
+            var promise = Promise.<Long>promise();
             vertx.fileSystem().open(targetFile, new OpenOptions().setRead(true), ar -> {
                 if (ar.succeeded()) {
                     var file = ar.result();
                     RecordParser parser = RecordParser.newFixed(1024 * 1024, file); // 1 MB chunk size
                     StringBuilder leftover = new StringBuilder();
                     parser.handler(buffer -> {
-                        String chunk = leftover + buffer.toString();
+                        var chunk = leftover + buffer.toString();
                         wordCount += countInChunk(chunk, targetWord);
                         leftover.setLength(0);
                         leftover.append(chunk.substring(Math.max(0, chunk.length() - targetWord.length() + 1)));
@@ -90,11 +95,10 @@ class WordCounterScript3 implements Callable<Integer> {
 
         private long countInChunk(String chunk, String word) {
             long count = 0;
-            int index = 0;
+            Matcher matcher = pattern.matcher(chunk);
 
-            while ((index = chunk.indexOf(word, index)) != -1) {
+            while (matcher.find()) {
                 count++;
-                index += word.length();
             }
 
             return count;
