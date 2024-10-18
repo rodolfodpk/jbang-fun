@@ -28,7 +28,7 @@ class WordCounterScript1 implements Callable<Integer> {
     public Integer call() {
         var startTime = System.nanoTime();
         System.out.println("Target file " + targetFile + " target word " + targetWord);
-        var reader = new WordCounterImplScanner();
+        var reader = new ScannerWordCounter();
         var count = reader.countWordOnFile(targetWord, targetFile);
         var endTime = System.nanoTime();
         var elapsed = endTime - startTime;
@@ -37,14 +37,12 @@ class WordCounterScript1 implements Callable<Integer> {
         return 0;
     }
 
-    public static class WordCounterImplScanner {
+    private static class ScannerWordCounter {
 
         public Long countWordOnFile(String targetWord, String targetFile) {
             long wordCount = 0;
-            Scanner scanner = null;
 
-            try {
-                scanner = new Scanner(new File(targetFile));
+            try (Scanner scanner = new Scanner(new File(targetFile))) {
 
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
@@ -52,10 +50,6 @@ class WordCounterScript1 implements Callable<Integer> {
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            } finally {
-                if (scanner != null) {
-                    scanner.close();
-                }
             }
 
             return wordCount;

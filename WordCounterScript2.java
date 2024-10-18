@@ -29,7 +29,7 @@ class WordCounterScript2 implements Callable<Integer> {
     public Integer call() {
         var startTime = System.nanoTime();
         System.out.println("Target file " + targetFile + " target word " + targetWord);
-        var reader = new WordCounterImplBuffered();
+        var reader = new BufferedWordCounter();
         var count = reader.countWordOnFile(targetWord, targetFile);
         var endTime = System.nanoTime();
         var elapsed = endTime - startTime;
@@ -39,7 +39,7 @@ class WordCounterScript2 implements Callable<Integer> {
     }
 
 
-    public static class WordCounterImplBuffered {
+    public static class BufferedWordCounter {
 
         public Long countWordOnFile(String targetWord, String targetFile) {
             long wordCount = 0;

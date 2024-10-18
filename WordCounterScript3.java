@@ -35,7 +35,7 @@ class WordCounterScript3 implements Callable<Integer> {
         var startTime = System.nanoTime();
         System.out.println("Target file " + targetFile + " target word " + targetWord);
         var vertx = Vertx.vertx();
-        var reader = new WordCounterImplVertx(vertx);
+        var reader = new VertxWordCounter(vertx);
         var latch = new CountDownLatch(1);
         reader.countWordOnFile(targetWord, targetFile)
                 .onSuccess(count -> {
@@ -53,14 +53,14 @@ class WordCounterScript3 implements Callable<Integer> {
         return 0;
     }
 
-    public static class WordCounterImplVertx {
+    private static class VertxWordCounter {
 
         private final Vertx vertx;
         private long wordCount = 0;
 
         private Pattern pattern;
 
-        public WordCounterImplVertx(Vertx vertx) {
+        public VertxWordCounter(Vertx vertx) {
             this.vertx = vertx;
         }
 
@@ -74,13 +74,13 @@ class WordCounterScript3 implements Callable<Integer> {
                     StringBuilder leftover = new StringBuilder();
                     parser.handler(buffer -> {
                         var chunk = leftover + buffer.toString();
-                        wordCount += countInChunk(chunk, targetWord);
+                        wordCount += countInChunk(chunk);
                         leftover.setLength(0);
                         leftover.append(chunk.substring(Math.max(0, chunk.length() - targetWord.length() + 1)));
                     });
                     parser.endHandler(v -> {
                         if (leftover.length() > 0) {
-                            wordCount += countInChunk(leftover.toString(), targetWord);
+                            wordCount += countInChunk(leftover.toString());
                         }
                         promise.complete(wordCount); // Complete the Promise
                         file.close();
@@ -93,7 +93,7 @@ class WordCounterScript3 implements Callable<Integer> {
             return promise.future();
         }
 
-        private long countInChunk(String chunk, String word) {
+        private long countInChunk(String chunk) {
             long count = 0;
             Matcher matcher = pattern.matcher(chunk);
 
