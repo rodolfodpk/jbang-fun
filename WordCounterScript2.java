@@ -20,6 +20,9 @@ class WordCounterScript2 implements Callable<Integer> {
     @CommandLine.Option(names = {"-w", "--word"}, description = "Target word", defaultValue = "PEACE")
     private String targetWord;
 
+    @CommandLine.Option(names = {"-b", "--buffer"}, description = "Characters buffer in MB", defaultValue = "1")
+    private int charBuffersSizeMB;
+
     public static void main(String... args) {
         int exitCode = new CommandLine(new WordCounterScript2()).execute(args);
         System.exit(exitCode);
@@ -28,22 +31,28 @@ class WordCounterScript2 implements Callable<Integer> {
     @Override
     public Integer call() {
         var startTime = System.nanoTime();
-        System.out.println("Target file " + targetFile + " target word " + targetWord);
-        var reader = new BufferedWordCounter();
-        var count = reader.countWordOnFile(targetWord, targetFile);
-        var endTime = System.nanoTime();
-        var elapsed = endTime - startTime;
-        System.out.println("The word '" + targetWord + "' occurs " + count + " times.");
-        System.out.println("Elapsed time in milliseconds: " + elapsed / 1000000);
-        return 0;
+        System.out.println("Target file " + targetFile + " target word " + targetWord + " buffer size " + charBuffersSizeMB);
+        try {
+            var bufferSize = charBuffersSizeMB * 1024 * 1024 / 2;
+            var reader = new BufferedWordCounter();
+            var count = reader.countWordOnFile(targetWord, targetFile, bufferSize);
+            System.out.println("The word '" + targetWord + "' occurs " + count + " times.");
+            return 0;
+        } catch (Exception e) {
+            return 1;
+        } finally {
+            var endTime = System.nanoTime();
+            var elapsed = endTime - startTime;
+            System.out.println("Elapsed time in milliseconds: " + elapsed / 1000000);
+        }
     }
 
 
-    public static class BufferedWordCounter {
+    private static class BufferedWordCounter {
 
-        public Long countWordOnFile(String targetWord, String targetFile) {
+        public Long countWordOnFile(String targetWord, String targetFile, int bufferSize) {
             long wordCount = 0;
-            try (BufferedReader br = new BufferedReader(new FileReader(targetFile))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(targetFile), bufferSize)) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     StringTokenizer st = new StringTokenizer(line);
@@ -54,7 +63,7 @@ class WordCounterScript2 implements Callable<Integer> {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
             return wordCount;
         }

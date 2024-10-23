@@ -28,13 +28,18 @@ class WordCounterScript1 implements Callable<Integer> {
     public Integer call() {
         var startTime = System.nanoTime();
         System.out.println("Target file " + targetFile + " target word " + targetWord);
-        var reader = new ScannerWordCounter();
-        var count = reader.countWordOnFile(targetWord, targetFile);
-        var endTime = System.nanoTime();
-        var elapsed = endTime - startTime;
-        System.out.println("The word '" + targetWord + "' occurs " + count + " times.");
-        System.out.println("Elapsed time in milliseconds: " + elapsed / 1000000);
-        return 0;
+        try {
+            var reader = new ScannerWordCounter();
+            var count = reader.countWordOnFile(targetWord, targetFile);
+            System.out.println("The word '" + targetWord + "' occurs " + count + " times.");
+            return 0;
+        } catch (Exception e) {
+            return 1;
+        } finally {
+            var endTime = System.nanoTime();
+            var elapsed = endTime - startTime;
+            System.out.println("Elapsed time in milliseconds: " + elapsed / 1000000);
+        }
     }
 
     private static class ScannerWordCounter {
@@ -49,7 +54,7 @@ class WordCounterScript1 implements Callable<Integer> {
                     wordCount += countOccurrenceInLine(line, targetWord);
                 }
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
 
             return wordCount;
